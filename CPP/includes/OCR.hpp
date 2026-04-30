@@ -2,26 +2,24 @@
 
 #include <string>
 
-#include "data_structure.hpp"
-
 namespace Digit_OCR{
-class CL_digit_OCR{
+class digit_OCR{
 
 public:
-    static CL_digit_OCR& get_instance();
+    static digit_OCR& get_instance();
     void init();
     int OCR(std::string path);
     void quit();
 
 private:
-CL_digit_OCR() = default;
-~CL_digit_OCR();
-CL_digit_OCR operator= (CL_digit_OCR other){};
+digit_OCR() = default;
+~digit_OCR();
+digit_OCR operator= (digit_OCR other){};
 
 public:
 
 private:
-inline static CL_digit_OCR* pinstance = nullptr;
+inline static digit_OCR* pinstance = nullptr;
 
 const std::string train_label = "MNIST/Train/train-labels-idx1-ubyte";
 const std::string train_image = "MNIST/Train/train-images-idx3-ubyte";

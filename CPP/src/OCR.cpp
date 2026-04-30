@@ -1,28 +1,28 @@
 #include "OCR.hpp"
 
 namespace Digit_OCR{
-CL_digit_OCR& CL_digit_OCR::get_instance(){
+digit_OCR& digit_OCR::get_instance(){
     if(!pinstance){
-        pinstance = new CL_digit_OCR();
+        pinstance = new digit_OCR();
         pinstance->init();
     }
     return *pinstance;
 }
 
-void CL_digit_OCR::init(){
+void digit_OCR::init(){
 
 }
 
-int CL_digit_OCR::OCR(std::string path){
+int digit_OCR::OCR(std::string path){
 
 }
 
-void CL_digit_OCR::quit(){
+void digit_OCR::quit(){
     delete pinstance;
     pinstance = nullptr;
 }
 
-CL_digit_OCR::~CL_digit_OCR(){
+digit_OCR::~digit_OCR(){
     
 }
 

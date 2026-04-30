@@ -3,25 +3,76 @@
 #include <stdexcept>
 
 namespace Digit_OCR::MNIST{
-    std::vector<ST_image_1D> decoder_1D(const std::string label_path, const std::string image_path){
+    MNIST_data_1D decoder_1D(const std::string label_path, const std::string image_path){
+        std::ifstream label_file(label_path, std::ios::binary);
+        if(read_big_endian(label_file) != 2049)
+            throw std::runtime_error("cannot read label file: " + label_path);
+        
+        std::ifstream image_file(image_path, std::ios::binary);
+        if(read_big_endian(image_file) != 2051)
+            throw std::runtime_error("cannot read image file: " + image_path);
+
+        int count = read_big_endian(label_file);
+        if(count != read_big_endian(image_file))
+            std::runtime_error("the number of label and image are not same");
+        int row = read_big_endian(image_file);
+        int col = read_big_endian(image_file);
+
+        
+        MNIST_data_1D data(count, row, col);
+        for(int i = 0; i < count; i++){
+            unsigned char byte;
+            label_file.read(reinterpret_cast<char*>(&byte), 1);
+            data.label[i] = byte;
+
+            for(int j = 0; j < row * col; j++){
+                image_file.read(reinterpret_cast<char*>(&byte), 1);
+                data.image[i][j] = byte / 255.0;
+            }
+        }
+
+        return data;
+    }
+
+    MNIST_data_2D decoder_2D(const std::string label_path, const std::string image_path){
+        std::ifstream label_file(label_path, std::ios::binary);
+        if(read_big_endian(label_file) != 2049)
+            throw std::runtime_error("cannot read label file: " + label_path);
+        
+        std::ifstream image_file(image_path, std::ios::binary);
+        if(read_big_endian(image_file) != 2051)
+            throw std::runtime_error("cannot read image file: " + image_path);
+
+        int count = read_big_endian(label_file);
+        if(count != read_big_endian(image_file))
+            std::runtime_error("the number of label and image are not same");
+        int row = read_big_endian(image_file);
+        int col = read_big_endian(image_file);
+
+        MNIST_data_2D data(count, row, col);
+        for(int i = 0; i < count; i++){
+            unsigned char byte;
+            label_file.read(reinterpret_cast<char*>(&byte), 1);
+            data.label[i] = byte;
+
+            for(int j = 0; j < row; j++){
+                for(int k = 0; k < col; k++){
+                    image_file.read(reinterpret_cast<char*>(&byte), 1);
+                    data.image[i][j][k] = byte / 255.0;
+                }
+            }
+        }
+
+        return data;
+    }
+
+
+
+    inline int decode_label(int offset){
 
     }
 
-    std::vector<ST_image_2D> decoder_2D(const std::string label_path, const std::string image_path){
-
-    }
-
-
-
-    inline int decode_1label(int offset){
-
-    }
-
-    inline std::vector<double> decode_1image_1D(int offset){
-
-    }
-
-    inline std::vector<std::vector<double>> decode_1image_2D(int offset){
+    inline std::vector<double> decode_image(int offset){
 
     }
 
