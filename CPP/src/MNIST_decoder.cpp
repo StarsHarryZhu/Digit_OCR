@@ -66,18 +66,6 @@ namespace Digit_OCR::MNIST{
         return data;
     }
 
-
-
-    inline int decode_label(int offset){
-
-    }
-
-    inline std::vector<double> decode_image(int offset){
-
-    }
-
-
-
     int read_big_endian(std::ifstream& file){
         unsigned char bytes[4];
         file.read(reinterpret_cast<char*>(bytes), 4);

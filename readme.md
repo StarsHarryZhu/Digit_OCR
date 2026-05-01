@@ -1,2 +1,2 @@
-A digit OCR fully by cpp.
-trained with MNIST.
+A digit OCR.
+Trained with MNIST.

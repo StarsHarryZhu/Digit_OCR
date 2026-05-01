@@ -28,8 +28,5 @@ namespace Digit_OCR::MNIST{
     MNIST_data_1D decoder_1D(const std::string label_path, const std::string image_path);
     MNIST_data_2D decoder_2D(const std::string label_path, const std::string image_path);
 
-    inline int decode_label(int offset);
-    inline std::vector<double> decode_image(int offset);
-
     int read_big_endian(std::ifstream& file);
 }
