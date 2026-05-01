@@ -120,7 +120,7 @@ void digit_OCR::MLP_train(const MNIST::data_1D& train, const MNIST::data_1D& tes
             MLP_train_once(train.label[j], train.image[j]);
         if((i+1) % (epochs) == 0){
             auto test_result = MLP_test(test);
-            std::printf("Epoch: %d\nAccuracy: %.1f%%\nLoss: %.3f\n\n", i, test_result[0], test_result[1]);
+            std::printf("Epoch: %d\nAccuracy: %.1f%%\nLoss: %.3f\n\n", i+1, test_result[0], test_result[1]);
         }
     }
 }
