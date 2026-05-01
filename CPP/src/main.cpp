@@ -22,5 +22,15 @@ int main(){
     auto instance = Digit_OCR::digit_OCR::get_instance();
     instance.MLP_train(train_1D, test_1D, 1);
 
+
+    std::cout << "start save file" << std::endl;
+    instance.save();
+    std::cout << "file saved, start init and load file for test" << std::endl;
+    instance.init();
+    instance.load();
+    std::cout << "file is loaded successfully" << std::endl;
+    auto test_result = instance.MLP_test(test_1D);
+    std::printf("Accuracy: %.1f%%\nLoss: %.3f\n\n", test_result[0], test_result[1]);
+
     return EXIT_SUCCESS;
 }

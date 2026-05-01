@@ -27,7 +27,7 @@ void digit_OCR::MLP_init(){
             MLP_w2[i][j] = dist(gen);
 }
 
-std::vector<std::vector<double>> digit_OCR::MLP_forward(const std::vector<double>& x, std::vector<double>& p){
+std::vector<std::vector<double>> digit_OCR::MLP_forward(const std::vector<double>& x){
     // layer 1: input -> hidden
     // origin val
     std::vector<double> z1(MLP_hidden_size);
@@ -47,7 +47,6 @@ std::vector<std::vector<double>> digit_OCR::MLP_forward(const std::vector<double
     // layer 2: hidden -> output
     // origin val, no need for ReLU
     std::vector<double> z2(output);
-    p.resize(output);
 
     //matrix multiply [1 * h][h * o] = [1 * o]
     for(int o = 0; o < output; o++){
@@ -56,25 +55,23 @@ std::vector<std::vector<double>> digit_OCR::MLP_forward(const std::vector<double
             sum += MLP_w2[h][o] * a1[h];
 
         z2[o] = sum;
-        p[o] = sum;
     }
 
     // store the origin data
-    std::vector<std::vector<double>> z;
-    z.push_back(z1);
-    z.push_back(z2);
-    z.push_back(a1);
-    z.push_back(p);
+    std::vector<std::vector<double>> z(4);
+    z[1] = z1;
+    z[2] = a1;
+    z[3] = z2;
 
     // normalisze
-    softmax(p);
+    softmax(z2);
+    z[0] = z2;
     return z;
 }
 
 void digit_OCR::MLP_train_once(const int& label, const std::vector<double>& image){
     // forward/probability and z1&z2
-    std::vector<double> p;
-    auto z = MLP_forward(image, p);
+    auto z = MLP_forward(image);
 
     // target
     auto target_p = target_generator(label);
@@ -82,7 +79,7 @@ void digit_OCR::MLP_train_once(const int& label, const std::vector<double>& imag
     // predict error(derivative z2)
     std::vector<double> dz2(output);
     for(int i = 0; i < output; i++)
-        dz2[i] = p[i] - target_p[i];
+        dz2[i] = z[0][i] - target_p[i];
 
     // hidden error(derivative z1)
     std::vector<double> dz1(MLP_hidden_size);
@@ -92,7 +89,7 @@ void digit_OCR::MLP_train_once(const int& label, const std::vector<double>& imag
             sum += dz2[o] * MLP_w2[h][o];
         }
 
-        dz1[h] = sum * ReLU_derivative(z[0][h]);
+        dz1[h] = sum * ReLU_derivative(z[1][h]);
     }
     
     // update w2 and b2 
@@ -100,17 +97,15 @@ void digit_OCR::MLP_train_once(const int& label, const std::vector<double>& imag
     for(int h = 0; h < MLP_hidden_size; h++)
         for(int o = 0; o < output; o++)
             MLP_w2[h][o] -= learning_rate * z[2][h] * dz2[o];
-
-    for (int h = 0; h < MLP_hidden_size; h++)
-        MLP_b1[h] -= learning_rate * dz1[h];
+    for (int o = 0; o < output; o++)
+        MLP_b2[o] -= learning_rate * dz2[o];
 
     // update w1 and b1
     for(int i = 0; i < MLP_input_size; i++)
         for(int h = 0; h < MLP_hidden_size; h++)
             MLP_w1[i][h] -= learning_rate * image[i] * dz1[h];
-
-    for (int o = 0; o < output; o++)
-        MLP_b2[o] -= learning_rate * dz2[o];
+    for (int h = 0; h < MLP_hidden_size; h++)
+        MLP_b1[h] -= learning_rate * dz1[h];
 }
 
 void digit_OCR::MLP_train(const MNIST::data_1D& train, const MNIST::data_1D& test, int epochs){
@@ -133,16 +128,15 @@ std::vector<double> digit_OCR::MLP_test(const MNIST::data_1D& test){
     double loss_sum = 0;
     for(int i = 0; i < test.label.size(); i++){
         // probility
-        std::vector<double> p;
-        MLP_forward(test.image[i], p);
+        auto z = MLP_forward(test.image[i]);
 
         // accuracy
-        size_t predict_num = predict(p);
+        size_t predict_num = predict(z[0]);
         if(predict_num == test.label[i])
             accurate++;
 
         // loss, avoiding log(0)
-        loss_sum += -std::log(p[test.label[i]] + (1e-15));
+        loss_sum += -std::log(z[0][test.label[i]] + (1e-15));
     }
     ans[0] = accurate * 100.0 / test.label.size();
     ans[1] = loss_sum / test.label.size();
