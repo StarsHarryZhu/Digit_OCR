@@ -114,15 +114,16 @@ void digit_OCR::MLP_train_once(const int& label, const std::vector<double>& imag
 }
 
 void digit_OCR::MLP_train(const MNIST::data_1D& train, const MNIST::data_1D& test, int epochs){
-    std::cout << "start training, target epochs: " << epochs*10 << std::endl;
-    for(int i = 0; i < epochs*10; i++){
+    std::cout << "Start MLP training, target epochs: " << epochs << std::endl;
+    for(int i = 0; i < epochs; i++){
         for(int j = 0; j < train.label.size(); j++)
             MLP_train_once(train.label[j], train.image[j]);
-        if((i+1) % (epochs) == 0){
-            auto test_result = MLP_test(test);
-            std::printf("Epoch: %d\nAccuracy: %.1f%%\nLoss: %.3f\n\n", i+1, test_result[0], test_result[1]);
-        }
+        
+        auto test_result = MLP_test(test);
+        std::printf("Epoch: %d\nAccuracy: %.1f%%\nLoss: %.3f\n\n", i+1, test_result[0], test_result[1]);
     }
+
+    std::cout << "MLP is trained successfully." << std::endl;
 }
 
 

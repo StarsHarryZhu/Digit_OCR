@@ -25,8 +25,7 @@ public:
     // return the raw vals, if want get probility, please use p at the second argument
     std::vector<std::vector<double>> MLP_forward(const std::vector<double>& x, std::vector<double>& p);
     void MLP_train_once(const int& label, const std::vector<double>& image);
-    // report every 10% train result: accuracy and loss
-    // the epochs will be multiplied by 10
+    // every epoch will fully trained with all train data set.
     void MLP_train(const MNIST::data_1D& train, const MNIST::data_1D& test, int epochs);
     // return {accurcy(%), loss}
     std::vector<double> MLP_test(const MNIST::data_1D& test);
