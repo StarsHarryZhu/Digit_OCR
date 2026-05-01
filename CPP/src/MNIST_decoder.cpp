@@ -3,7 +3,7 @@
 #include <stdexcept>
 
 namespace Digit_OCR::MNIST{
-    MNIST_data_1D decoder_1D(const std::string label_path, const std::string image_path){
+    data_1D decoder_1D(const std::string label_path, const std::string image_path){
         std::ifstream label_file(label_path, std::ios::binary);
         if(read_big_endian(label_file) != 2049)
             throw std::runtime_error("cannot read label file: " + label_path);
@@ -19,7 +19,7 @@ namespace Digit_OCR::MNIST{
         int col = read_big_endian(image_file);
 
         
-        MNIST_data_1D data(count, row, col);
+        data_1D data(count, row, col);
         for(int i = 0; i < count; i++){
             unsigned char byte;
             label_file.read(reinterpret_cast<char*>(&byte), 1);
@@ -34,7 +34,7 @@ namespace Digit_OCR::MNIST{
         return data;
     }
 
-    MNIST_data_2D decoder_2D(const std::string label_path, const std::string image_path){
+    data_2D decoder_2D(const std::string label_path, const std::string image_path){
         std::ifstream label_file(label_path, std::ios::binary);
         if(read_big_endian(label_file) != 2049)
             throw std::runtime_error("cannot read label file: " + label_path);
@@ -49,7 +49,7 @@ namespace Digit_OCR::MNIST{
         int row = read_big_endian(image_file);
         int col = read_big_endian(image_file);
 
-        MNIST_data_2D data(count, row, col);
+        data_2D data(count, row, col);
         for(int i = 0; i < count; i++){
             unsigned char byte;
             label_file.read(reinterpret_cast<char*>(&byte), 1);

@@ -6,17 +6,21 @@
 #include "MNIST_decoder.hpp"
 
 int main(){
-    const std::string label_path = "MNIST/Train/train-labels-idx1-ubyte";
-    const std::string image_path = "MNIST/Train/train-images-idx3-ubyte";
-    auto data_1D = Digit_OCR::MNIST::decoder_1D(label_path, image_path);
-    auto data_2D = Digit_OCR::MNIST::decoder_2D(label_path, image_path);
+    const std::string train_label = "MNIST/Train/train-labels-idx1-ubyte";
+    const std::string train_image = "MNIST/Train/train-images-idx3-ubyte";
+    auto train_1D = Digit_OCR::MNIST::decoder_1D(train_label, train_image);
+    auto train_2D = Digit_OCR::MNIST::decoder_2D(train_label, train_image);
+
+    const std::string test_label = "MNIST/Test/t10k-labels-idx1-ubyte";
+    const std::string test_image = "MNIST/Test/t10k-images-idx3-ubyte";
+    auto test_1D = Digit_OCR::MNIST::decoder_1D(test_label, test_image);
+    auto test_2D = Digit_OCR::MNIST::decoder_2D(test_label, test_image);
+
+    std::cout << "train and test assets loaded successfully" << std::endl;
+
 
     auto instance = Digit_OCR::digit_OCR::get_instance();
-    auto a1 = instance.MLP_forward(data_1D.image[0]);
-
-    for(const auto& item : a1)
-        std::cout << item << std::endl;
-
+    instance.MLP_train(train_1D, test_1D, 1);
 
     return EXIT_SUCCESS;
 }
