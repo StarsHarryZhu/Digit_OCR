@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include <opencv2/opencv.hpp>
 
 #include "MNIST_decoder.hpp"
 
@@ -16,6 +17,9 @@ public:
     void quit();
 
 //private:
+
+
+    // model
     double ReLU(const double& x);
     double ReLU_derivative(const double& x);
     void softmax(std::vector<double>& z);
@@ -55,6 +59,13 @@ public:
     inline void load_vector_2D(std::ifstream& file, std::vector<std::vector<double>>& v);
 
 
+    // image loader
+    std::vector<double> image_loader_1D(const std::string path);
+    std::vector<std::vector<double>> image_loader_2D(const std::string path);
+    // pre-process the image and find if there is digit(return true)
+    bool enhance_image(cv::Mat& img);
+
+
     digit_OCR() = default;
     ~digit_OCR();
     digit_OCR operator= (digit_OCR other){
@@ -64,7 +75,9 @@ public:
 public:
 
 private:
-    inline static digit_OCR* pinstance = nullptr;
+    inline static digit_OCR* pinstance = nullptr;\
+    const int row_default = 28;
+    const int col_default = 28;
 
     // save & load location
     const int MLP_code = 114;
@@ -79,7 +92,7 @@ private:
     const std::string test_image = "MNIST/Test/t10k-images-idx3-ubyte";
 
 
-    const int MLP_input_size = 784;
+    const int MLP_input_size = row_default * col_default;
     const int MLP_hidden_size = 128;
     std::vector<std::vector<double>> MLP_w1;
     std::vector<double> MLP_b1;

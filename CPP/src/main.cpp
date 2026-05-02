@@ -16,21 +16,20 @@ int main(){
     auto test_1D = Digit_OCR::MNIST::decoder_1D(test_label, test_image);
     auto test_2D = Digit_OCR::MNIST::decoder_2D(test_label, test_image);
 
-    std::cout << "train and test assets loaded successfully" << std::endl;
-
-
     auto instance = Digit_OCR::digit_OCR::get_instance();
-    instance.MLP_train(train_1D, test_1D, 1);
 
+    const std::string img_path = "assets/3.png";
+    auto resized = instance.image_loader_1D(img_path);
 
-    std::cout << "start save file" << std::endl;
-    instance.save();
-    std::cout << "file saved, start init and load file for test" << std::endl;
-    instance.init();
-    instance.load();
-    std::cout << "file is loaded successfully" << std::endl;
-    auto test_result = instance.MLP_test(test_1D);
-    std::printf("Accuracy: %.1f%%\nLoss: %.3f\n\n", test_result[0], test_result[1]);
+    for(int i = 0; i < 28; i++){
+        for(int j = 0; j < 28; j++){
+            if(resized[i*28 + j] == 0)
+                std::cout << ".";
+            else
+                std::cout << "#";
+        }
+        std::cout << std::endl;
+    }
 
     return EXIT_SUCCESS;
 }
