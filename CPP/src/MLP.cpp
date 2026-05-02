@@ -124,6 +124,10 @@ void digit_OCR::MLP_train(const MNIST::data_1D& train, const MNIST::data_1D& tes
     }
 
     std::cout << "MLP is trained successfully." << std::endl;
+
+    // save after trained
+    save_MLP();
+    std::cout << "MLP parameters are saved." << std::endl;
 }
 
 
