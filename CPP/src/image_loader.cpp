@@ -3,7 +3,7 @@
 #include "OCR.hpp"
 
 namespace Digit_OCR{
-std::vector<double> digit_OCR::image_loader_1D(const std::string path){
+std::vector<double> digit_OCR::image_loader_1D(const std::string& path){
     cv::Mat img = cv::imread(path, cv::IMREAD_GRAYSCALE);
     if(img.empty())
         throw std::runtime_error("cannot load image: " + path);
@@ -23,7 +23,7 @@ std::vector<double> digit_OCR::image_loader_1D(const std::string path){
     return result;
 }
 
-std::vector<std::vector<double>> digit_OCR::image_loader_2D(const std::string path){
+std::vector<std::vector<double>> digit_OCR::image_loader_2D(const std::string& path){
     cv::Mat img = cv::imread(path, cv::IMREAD_GRAYSCALE);
     if(img.empty())
         throw std::runtime_error("cannot load image: " + path);

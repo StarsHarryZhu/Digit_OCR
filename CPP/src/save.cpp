@@ -3,13 +3,6 @@
 #include "OCR.hpp"
 
 namespace Digit_OCR{
-
-void digit_OCR::save(){
-    save_MLP();
-    save_CNN();
-}
-
-
 void digit_OCR::save_MLP(){
     std::filesystem::create_directories(
         std::filesystem::path(MLP_file).parent_path()

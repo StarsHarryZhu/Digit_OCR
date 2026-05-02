@@ -13,10 +13,12 @@ class digit_OCR{
 public:
     static digit_OCR& get_instance();
     void init();
-    int OCR(std::string path);
+    int MLP_OCR(std::string path);
+    int CNN_OCR(std::string path);
+    int mixed_OCR(std::string path);
     void quit();
 
-//private:
+private:
 
 
     // model
@@ -27,6 +29,7 @@ public:
     std::vector<double> target_generator(int n);
 
     void MLP_init();
+    std::vector<double> MLP_get_probability(const std::vector<double>& x);
     // return the raw vals, if want get probility, please use p at the second argument
     std::vector<std::vector<double>> MLP_forward(const std::vector<double>& x);
     void MLP_train_once(const int& label, const std::vector<double>& image);
@@ -36,11 +39,6 @@ public:
     std::vector<double> MLP_test(const MNIST::data_1D& test);
 
     void CNN_init();
-
-
-    // save and load for model parameters
-    void save();
-    void load();
 
     // save helper
     void save_MLP();
@@ -60,8 +58,8 @@ public:
 
 
     // image loader
-    std::vector<double> image_loader_1D(const std::string path);
-    std::vector<std::vector<double>> image_loader_2D(const std::string path);
+    std::vector<double> image_loader_1D(const std::string& path);
+    std::vector<std::vector<double>> image_loader_2D(const std::string& path);
     // pre-process the image and find if there is digit(return true)
     bool enhance_image(cv::Mat& img);
 

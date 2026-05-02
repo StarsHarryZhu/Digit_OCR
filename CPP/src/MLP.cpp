@@ -27,6 +27,11 @@ void digit_OCR::MLP_init(){
             MLP_w2[i][j] = dist(gen);
 }
 
+std::vector<double> digit_OCR::MLP_get_probability(const std::vector<double>& x){
+    auto z = MLP_forward(x);
+    return z[0];
+}
+
 std::vector<std::vector<double>> digit_OCR::MLP_forward(const std::vector<double>& x){
     // layer 1: input -> hidden
     // origin val

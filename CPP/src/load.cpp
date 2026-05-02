@@ -4,11 +4,6 @@
 #include "OCR.hpp"
 
 namespace Digit_OCR{
-void digit_OCR::load(){
-    load_MLP();
-    load_CNN();
-}
-
 void digit_OCR::load_MLP(){
     std::ifstream file(MLP_file, std::ios::binary);
     if(!file.is_open()){
