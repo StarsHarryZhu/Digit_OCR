@@ -56,6 +56,6 @@ rules.ninja
 Thumbs.db
 
 # other
-test_assets/*
+test_assets/
 model/*
 assets/
