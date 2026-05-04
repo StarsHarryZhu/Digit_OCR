@@ -20,7 +20,7 @@ public:
     int mixed_OCR(std::string path);
     void quit();
 
-private:
+// private:
     // model
     double ReLU(const double& x);
     double ReLU_derivative(const double& x);
@@ -47,12 +47,15 @@ private:
 
     // CNN
     void CNN_init();
-    std::vector<std::vector<std::vector<double>>> CNN_conv_forward(const std::vector<std::vector<double>>& input);
+    std::vector<double> CNN_forward(const std::vector<std::vector<double>>& input);
+    std::vector<std::vector<std::vector<double>>> CNN_conv_forward(const std::vector<std::vector<double>>& input, std::vector<std::vector<std::vector<double>>>* conv);
     std::vector<std::vector<std::vector<double>>> CNN_maxpool(const std::vector<std::vector<std::vector<double>>>& filted);
+    std::vector<double> CNN_flatten(const std::vector<std::vector<std::vector<double>>>& pooled);
+    std::vector<double> CNN_flatten_forward(const std::vector<double>& flatten, std::vector<double>* origin);
+    void CNN_train_once(const int& label, const std::vector<std::vector<double>>& image);
 
-
-    void load_CNN();
     void save_CNN();
+    void load_CNN();
 
 
 

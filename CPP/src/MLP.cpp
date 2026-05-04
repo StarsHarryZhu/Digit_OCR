@@ -26,12 +26,6 @@ void digit_OCR::MLP_init(){
             MLP.w2[i][j] = dist(gen);
 }
 
-int digit_OCR::MLP_OCR(std::string path){
-    auto img = image_loader_1D(path);
-    auto p = MLP_forward(img, nullptr);
-    return predict(p);
-}
-
 std::vector<double> digit_OCR::MLP_forward(const std::vector<double>& input, std::vector<std::vector<double>>* config){
     // layer 1: input -> hidden
     // origin val

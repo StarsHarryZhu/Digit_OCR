@@ -36,6 +36,18 @@ void digit_OCR::init(){
     // }
 }
 
+int digit_OCR::MLP_OCR(std::string path){
+    auto img = image_loader_1D(path);
+    auto p = MLP_forward(img, nullptr);
+    return predict(p);
+}
+
+int digit_OCR::CNN_OCR(std::string path){
+    auto img = image_loader_2D(path);
+    auto p = CNN_forward(img);
+    return predict(p);
+}
+
 int digit_OCR::mixed_OCR(std::string path){
 
 }
