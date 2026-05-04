@@ -5,17 +5,17 @@
 namespace Digit_OCR{
 void digit_OCR::save_MLP(){
     std::filesystem::create_directories(
-        std::filesystem::path(MLP_file).parent_path()
+        std::filesystem::path(MLP.file).parent_path()
     );
-    std::ofstream file(MLP_file, std::ios::binary);
+    std::ofstream file(MLP.file, std::ios::binary);
     if(!file.is_open())
         throw std::runtime_error("cannot open the MLP file to save data");
     
-    save_single(file, MLP_code);
-    save_vector_2D(file, MLP_w1);
-    save_vector_1D(file, MLP_b1);
-    save_vector_2D(file, MLP_w2);
-    save_vector_1D(file, MLP_b2);
+    save_single(file, MLP.code);
+    save_vector_2D(file, MLP.w1);
+    save_vector_1D(file, MLP.b1);
+    save_vector_2D(file, MLP.w2);
+    save_vector_1D(file, MLP.b2);
 
     file.close();
 }

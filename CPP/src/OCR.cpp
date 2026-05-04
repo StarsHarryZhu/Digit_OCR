@@ -13,7 +13,7 @@ digit_OCR& digit_OCR::get_instance(){
 }
 
 void digit_OCR::init(){
-    if(std::filesystem::exists(MLP_file)){
+    if(std::filesystem::exists(MLP.file)){
         std::cout << "Found MLP file." << std::endl;
         load_MLP();
     } else {
@@ -36,16 +36,6 @@ void digit_OCR::init(){
     // }
 }
 
-int digit_OCR::MLP_OCR(std::string path){
-    auto img = image_loader_1D(path);
-    auto p = MLP_get_probability(img);
-    return predict(p);
-}
-
-int digit_OCR::CNN_OCR(std::string path){
-
-}
-
 int digit_OCR::mixed_OCR(std::string path){
 
 }
@@ -54,6 +44,11 @@ void digit_OCR::quit(){
     delete pinstance;
     pinstance = nullptr;
 }
+
+digit_OCR::digit_OCR():
+    MLP("model/MLP.bin", row_default*col_default, 128),
+    CNN("model/CNN.bin", row_default, col_default, 8, 3, 2)
+    {}
 
 digit_OCR::~digit_OCR(){
     

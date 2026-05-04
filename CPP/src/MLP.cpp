@@ -1,5 +1,4 @@
 #include <string>
-#include <iostream>
 #include <random>
 #include <cmath>
 
@@ -13,37 +12,38 @@ void digit_OCR::MLP_init(){
     std::normal_distribution<double> dist(0.0, 0.01);
 
     // init the neural network
-    MLP_w1.resize(MLP_input_size, std::vector<double>(MLP_hidden_size));
-    MLP_b1.resize(MLP_hidden_size, 0.0);
-    MLP_w2.resize(MLP_hidden_size, std::vector<double>(output));
-    MLP_b2.resize(output, 0.0);
+    MLP.w1.resize(MLP.input_size, std::vector<double>(MLP.hidden_size));
+    MLP.b1.resize(MLP.hidden_size, 0.0);
+    MLP.w2.resize(MLP.hidden_size, std::vector<double>(output));
+    MLP.b2.resize(output, 0.0);
     // w1 and w2 need normal distribution
-    for(int i = 0; i < MLP_input_size; i++)
-        for(int j = 0; j < MLP_hidden_size; j++)
-            MLP_w1[i][j] = dist(gen);
+    for(int i = 0; i < MLP.input_size; i++)
+        for(int j = 0; j < MLP.hidden_size; j++)
+            MLP.w1[i][j] = dist(gen);
     
-    for(int i = 0; i < MLP_hidden_size; i++)
+    for(int i = 0; i < MLP.hidden_size; i++)
         for(int j = 0; j < output; j++)
-            MLP_w2[i][j] = dist(gen);
+            MLP.w2[i][j] = dist(gen);
 }
 
-std::vector<double> digit_OCR::MLP_get_probability(const std::vector<double>& x){
-    auto z = MLP_forward(x);
-    return z[0];
+int digit_OCR::MLP_OCR(std::string path){
+    auto img = image_loader_1D(path);
+    auto p = MLP_forward(img, nullptr);
+    return predict(p);
 }
 
-std::vector<std::vector<double>> digit_OCR::MLP_forward(const std::vector<double>& x){
+std::vector<double> digit_OCR::MLP_forward(const std::vector<double>& input, std::vector<std::vector<double>>* config){
     // layer 1: input -> hidden
     // origin val
-    std::vector<double> z1(MLP_hidden_size);
+    std::vector<double> z1(MLP.hidden_size);
     // ReLU val
-    std::vector<double> a1(MLP_hidden_size);
+    std::vector<double> a1(MLP.hidden_size);
 
     // matrix multiply [1 * i][i * h] = [1 * h]
-    for(int h = 0; h < MLP_hidden_size; h++){
-        double sum = MLP_b1[h];
-        for(int i = 0; i < MLP_input_size; i++)
-            sum += MLP_w1[i][h] * x[i];
+    for(int h = 0; h < MLP.hidden_size; h++){
+        double sum = MLP.b1[h];
+        for(int i = 0; i < MLP.input_size; i++)
+            sum += MLP.w1[i][h] * input[i];
 
         z1[h] = sum;
         a1[h] = ReLU(sum);
@@ -55,28 +55,30 @@ std::vector<std::vector<double>> digit_OCR::MLP_forward(const std::vector<double
 
     //matrix multiply [1 * h][h * o] = [1 * o]
     for(int o = 0; o < output; o++){
-        double sum = MLP_b2[o];
-        for(int h = 0; h < MLP_hidden_size; h++)
-            sum += MLP_w2[h][o] * a1[h];
+        double sum = MLP.b2[o];
+        for(int h = 0; h < MLP.hidden_size; h++)
+            sum += MLP.w2[h][o] * a1[h];
 
         z2[o] = sum;
     }
 
     // store the origin data
-    std::vector<std::vector<double>> z(4);
-    z[1] = z1;
-    z[2] = a1;
-    z[3] = z2;
+    if(config != nullptr){
+        (*config).resize(3);
+        (*config)[0] = z1;
+        (*config)[1] = a1;
+        (*config)[2] = z2;
+    }
 
     // normalisze
     softmax(z2);
-    z[0] = z2;
-    return z;
+    return z2;
 }
 
 void digit_OCR::MLP_train_once(const int& label, const std::vector<double>& image){
     // forward/probability and z1&z2
-    auto z = MLP_forward(image);
+    std::vector<std::vector<double>> config;
+    auto p = MLP_forward(image, &config);
 
     // target
     auto target_p = target_generator(label);
@@ -84,33 +86,33 @@ void digit_OCR::MLP_train_once(const int& label, const std::vector<double>& imag
     // predict error(derivative z2)
     std::vector<double> dz2(output);
     for(int i = 0; i < output; i++)
-        dz2[i] = z[0][i] - target_p[i];
+        dz2[i] = p[i] - target_p[i];
 
     // hidden error(derivative z1)
-    std::vector<double> dz1(MLP_hidden_size);
-    for(int h = 0; h < MLP_hidden_size; h++){
+    std::vector<double> dz1(MLP.hidden_size);
+    for(int h = 0; h < MLP.hidden_size; h++){
         double sum = 0;
         for (int o = 0; o < output; o++) {
-            sum += dz2[o] * MLP_w2[h][o];
+            sum += dz2[o] * MLP.w2[h][o];
         }
 
-        dz1[h] = sum * ReLU_derivative(z[1][h]);
+        dz1[h] = sum * ReLU_derivative(config[0][h]);
     }
     
     // update w2 and b2 
     // *** must earlier than w1 and b1 ***
-    for(int h = 0; h < MLP_hidden_size; h++)
+    for(int h = 0; h < MLP.hidden_size; h++)
         for(int o = 0; o < output; o++)
-            MLP_w2[h][o] -= learning_rate * z[2][h] * dz2[o];
+            MLP.w2[h][o] -= learning_rate * config[1][h] * dz2[o];
     for (int o = 0; o < output; o++)
-        MLP_b2[o] -= learning_rate * dz2[o];
+        MLP.b2[o] -= learning_rate * dz2[o];
 
     // update w1 and b1
-    for(int i = 0; i < MLP_input_size; i++)
-        for(int h = 0; h < MLP_hidden_size; h++)
-            MLP_w1[i][h] -= learning_rate * image[i] * dz1[h];
-    for (int h = 0; h < MLP_hidden_size; h++)
-        MLP_b1[h] -= learning_rate * dz1[h];
+    for(int i = 0; i < MLP.input_size; i++)
+        for(int h = 0; h < MLP.hidden_size; h++)
+            MLP.w1[i][h] -= learning_rate * image[i] * dz1[h];
+    for (int h = 0; h < MLP.hidden_size; h++)
+        MLP.b1[h] -= learning_rate * dz1[h];
 }
 
 void digit_OCR::MLP_train(const MNIST::data_1D& train, const MNIST::data_1D& test, int epochs){
@@ -137,15 +139,15 @@ std::vector<double> digit_OCR::MLP_test(const MNIST::data_1D& test){
     double loss_sum = 0;
     for(int i = 0; i < test.label.size(); i++){
         // probility
-        auto z = MLP_forward(test.image[i]);
+        auto p = MLP_forward(test.image[i], nullptr);
 
         // accuracy
-        size_t predict_num = predict(z[0]);
+        size_t predict_num = predict(p);
         if(predict_num == test.label[i])
             accurate++;
 
         // loss, avoiding log(0)
-        loss_sum += -std::log(z[0][test.label[i]] + (1e-15));
+        loss_sum += -std::log(p[test.label[i]] + (1e-15));
     }
     ans[0] = accurate * 100.0 / test.label.size();
     ans[1] = loss_sum / test.label.size();
