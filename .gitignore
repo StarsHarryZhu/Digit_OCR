@@ -31,6 +31,11 @@ rules.ninja
 *.dll
 *.exe
 *.out
+*.d
+
+# Project runtime binary (generated at repo root by CMakeLists.txt)
+/Digit_OCR
+/Digit_OCR.exe
 
 # Debug symbols / profiling outputs
 *.dSYM/
