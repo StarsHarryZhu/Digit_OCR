@@ -4,15 +4,7 @@
 #include "OCR.hpp"
 
 int main(){
-    const std::string train_label = "MNIST/Train/train-labels-idx1-ubyte";
-    const std::string train_image = "MNIST/Train/train-images-idx3-ubyte";
-    const std::string test_label = "MNIST/Test/t10k-labels-idx1-ubyte";
-    const std::string test_image = "MNIST/Test/t10k-images-idx3-ubyte";
-
     const std::string img3 = "assets/3.png";
-
-    auto train_2d = Digit_OCR::MNIST::decoder_2D(train_label, train_image);
-    auto test_2d = Digit_OCR::MNIST::decoder_2D(test_label, test_image);
     
     auto& i = Digit_OCR::digit_OCR::get_instance();
 
