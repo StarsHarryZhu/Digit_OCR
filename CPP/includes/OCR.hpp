@@ -20,7 +20,7 @@ public:
     int mixed_OCR(std::string path);
     void quit();
 
-// private:
+private:
     // model
     double ReLU(const double& x);
     double ReLU_derivative(const double& x);
@@ -52,7 +52,10 @@ public:
     std::vector<std::vector<std::vector<double>>> CNN_maxpool(const std::vector<std::vector<std::vector<double>>>& filted);
     std::vector<double> CNN_flatten(const std::vector<std::vector<std::vector<double>>>& pooled);
     std::vector<double> CNN_flatten_forward(const std::vector<double>& flatten, std::vector<double>* origin);
+
     void CNN_train_once(const int& label, const std::vector<std::vector<double>>& image);
+    void CNN_train(const MNIST::data_2D& train, const MNIST::data_2D& test, int epochs);
+    std::vector<double> CNN_test(const MNIST::data_2D& test);
 
     void save_CNN();
     void load_CNN();
@@ -67,12 +70,14 @@ public:
     inline void save_vector(std::ofstream& file, const std::vector<double>& v);
     inline void save_vector_1D(std::ofstream& file, const std::vector<double>& v);
     inline void save_vector_2D(std::ofstream& file, const std::vector<std::vector<double>>& v);
+    inline void save_vector_3D(std::ofstream& file, const std::vector<std::vector<std::vector<double>>>& v);
 
     // load helper
     inline size_t load_single(std::ifstream& file);
     inline void load_vector(std::ifstream& file, std::vector<double>& v);
     inline void load_vector_1D(std::ifstream& file, std::vector<double>& v);
     inline void load_vector_2D(std::ifstream& file, std::vector<std::vector<double>>& v);
+    inline void load_vector_3D(std::ifstream& file, std::vector<std::vector<std::vector<double>>>& v);
 
 
     // image loader
@@ -105,7 +110,6 @@ private:
     MLP_data MLP;
     CNN_data CNN;
 
-    const double learning_rate = 0.01;
     const int output = 10;
 
 };

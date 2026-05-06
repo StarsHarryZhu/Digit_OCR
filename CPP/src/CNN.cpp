@@ -175,12 +175,12 @@ void digit_OCR::CNN_train_once(const int& label, const std::vector<std::vector<d
     // update flatten_w and flatten_b
     for(int i = 0; i < flatten.size(); i++){
         for(int j = 0; j < output; j++){
-            CNN.flatten_w[i][j] -= learning_rate * flatten[i] * dz[j];
+            CNN.flatten_w[i][j] -= CNN.learning_rate * flatten[i] * dz[j];
         }
     }
 
     for(int j = 0; j < output; j++){
-        CNN.flatten_b[j] -= learning_rate * dz[j];
+        CNN.flatten_b[j] -= CNN.learning_rate * dz[j];
     }
 
     // flatten backward
@@ -257,7 +257,7 @@ void digit_OCR::CNN_train_once(const int& label, const std::vector<std::vector<d
                     for(int j = 0; j < dconv[0][0].size(); j++)
                         sum += dconv[cnt][i][j] * image[r + i][c + j];
 
-                CNN.conv_filters[cnt][r][c] -= learning_rate * sum;
+                CNN.conv_filters[cnt][r][c] -= CNN.learning_rate * sum;
             }
         }
     }
@@ -269,8 +269,46 @@ void digit_OCR::CNN_train_once(const int& label, const std::vector<std::vector<d
             for(int j = 0; j < dconv[0][0].size(); j++)
                 sum += dconv[cnt][i][j];
         
-        CNN.conv_b[cnt] -= learning_rate * sum;
+        CNN.conv_b[cnt] -= CNN.learning_rate * sum;
     }
     // dinput
+}
+
+void digit_OCR::CNN_train(const MNIST::data_2D& train, const MNIST::data_2D& test, int epochs){
+    std::cout << "Start CNN training, target epochs: " << epochs << std::endl;
+    for(int i = 0; i < epochs; i++){
+        for(int j = 0; j < train.label.size(); j++)
+            CNN_train_once(train.label[j], train.image[j]);
+        
+        auto test_result = CNN_test(test);
+        std::printf("Epoch: %d\nAccuracy: %.1f%%\nLoss: %.3f\n\n", i+1, test_result[0], test_result[1]);
+    }
+
+    std::cout << "CNN is trained successfully." << std::endl;
+
+    // save after trained
+    save_CNN();
+    std::cout << "CNN parameters are saved." << std::endl;
+}
+
+std::vector<double> digit_OCR::CNN_test(const MNIST::data_2D& test){
+    std::vector<double> ans(2, 0);
+    double accurate = 0;
+    double loss_sum = 0;
+    for(int i = 0; i < test.label.size(); i++){
+        // probility
+        auto p = CNN_forward(test.image[i]);
+
+        // accuracy
+        size_t predict_num = predict(p);
+        if(predict_num == test.label[i])
+            accurate++;
+
+        // loss, avoiding log(0)
+        loss_sum += -std::log(p[test.label[i]] + (1e-15));
+    }
+    ans[0] = accurate * 100.0 / test.label.size();
+    ans[1] = loss_sum / test.label.size();
+    return ans;
 }
 }

@@ -24,16 +24,16 @@ void digit_OCR::init(){
         MLP_train(train, test, 3);
     }
 
-    // if(std::filesystem::exists(CNN_file)){
-    //     std::cout << "Found CNN file." << std::endl;
-    //     load_MLP();
-    // } else {
-    //     std::cout << "Didnt found CNN file, start training (default 3 epochs)." << std::endl;
-    //     CNN_init();
-    //     auto train = MNIST::decoder_2D(train_label, train_image);
-    //     auto test = MNIST::decoder_2D(test_label, test_image);
-    //     CNN_train(train, test, 3);
-    // }
+    if(std::filesystem::exists(CNN.file)){
+        std::cout << "Found CNN file." << std::endl;
+        load_CNN();
+    } else {
+        std::cout << "Didnt found CNN file, start training (default 3 epochs)." << std::endl;
+        CNN_init();
+        auto train = MNIST::decoder_2D(train_label, train_image);
+        auto test = MNIST::decoder_2D(test_label, test_image);
+        CNN_train(train, test, 3);
+    }
 }
 
 int digit_OCR::MLP_OCR(std::string path){
@@ -49,7 +49,16 @@ int digit_OCR::CNN_OCR(std::string path){
 }
 
 int digit_OCR::mixed_OCR(std::string path){
+    auto img_1D = image_loader_1D(path);
+    auto p_MLP = MLP_forward(img_1D, nullptr);
+    auto img_2D = image_loader_2D(path);
+    auto p_CNN = CNN_forward(img_2D);
 
+    for(int i = 0; i < p_MLP.size(); i++)
+        p_MLP[i] += p_CNN[i];
+
+    softmax(p_MLP);
+    return predict(p_MLP);
 }
 
 void digit_OCR::quit(){
@@ -58,8 +67,8 @@ void digit_OCR::quit(){
 }
 
 digit_OCR::digit_OCR():
-    MLP("model/MLP.bin", row_default*col_default, 128),
-    CNN("model/CNN.bin", row_default, col_default, 8, 3, 2)
+    MLP("model/MLP.bin", 0.01, row_default*col_default, 128),
+    CNN("model/CNN.bin", 0.001, row_default, col_default, 8, 3, 2)
     {}
 
 digit_OCR::~digit_OCR(){

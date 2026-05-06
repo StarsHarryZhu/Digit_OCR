@@ -19,37 +19,30 @@ void digit_OCR::load_MLP(){
     }
 
     load_vector_2D(file, MLP.w1);
-    if(MLP.w1.size() != MLP.input_size || MLP.w1[0].size() != MLP.hidden_size){
-        std::cout << "fail to load MLP file." << std::endl;
-        MLP_init();
-        return ;
-    }
-
     load_vector_1D(file, MLP.b1);
-    if(MLP.b1.size() != MLP.hidden_size){
-        std::cout << "fail to load MLP file." << std::endl;
-        MLP_init();
-        return ;
-    }
-
     load_vector_2D(file, MLP.w2);
-    if(MLP.w2.size() != MLP.hidden_size || MLP.w2[0].size() != output){
-        std::cout << "fail to load MLP file." << std::endl;
-        MLP_init();
-        return ;
-    }
-
     load_vector_1D(file, MLP.b2);
-    if(MLP.b2.size() != output){
-        std::cout << "fail to load MLP file." << std::endl;
-        MLP_init();
-        return ;
-    }
 
 }
 
 void digit_OCR::load_CNN(){
+    std::ifstream file(CNN.file, std::ios::binary);
+    if(!file.is_open()){
+        std::cout << "cannot open the CNN file to load data." << std::endl;
+        CNN_init();
+        return ;
+    }
 
+    if(load_single(file) != CNN.code){
+        std::cout << "The file is not CNN file." << std::endl;
+        CNN_init();
+        return ;
+    }
+
+    load_vector_3D(file, CNN.conv_filters);
+    load_vector_1D(file, CNN.conv_b);
+    load_vector_2D(file, CNN.flatten_w);
+    load_vector_1D(file, CNN.flatten_b);
 }
 
 inline size_t digit_OCR::load_single(std::ifstream& file){
@@ -75,6 +68,17 @@ inline void digit_OCR::load_vector_2D(std::ifstream& file, std::vector<std::vect
     for(auto& item : v){
         item.resize(col);
         load_vector(file, item);
+    }
+}
+
+inline void digit_OCR::load_vector_3D(std::ifstream& file, std::vector<std::vector<std::vector<double>>>& v){
+    size_t cnt = load_single(file);
+    size_t row = load_single(file);
+    size_t col = load_single(file);
+    v.resize(cnt);
+    for(auto& item : v){
+        item.resize(col);
+        load_vector_2D(file, item);
     }
 }
 

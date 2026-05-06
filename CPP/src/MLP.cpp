@@ -97,16 +97,16 @@ void digit_OCR::MLP_train_once(const int& label, const std::vector<double>& imag
     // *** must earlier than w1 and b1 ***
     for(int h = 0; h < MLP.hidden_size; h++)
         for(int o = 0; o < output; o++)
-            MLP.w2[h][o] -= learning_rate * config[1][h] * dz2[o];
+            MLP.w2[h][o] -= MLP.learning_rate * config[1][h] * dz2[o];
     for (int o = 0; o < output; o++)
-        MLP.b2[o] -= learning_rate * dz2[o];
+        MLP.b2[o] -= MLP.learning_rate * dz2[o];
 
     // update w1 and b1
     for(int i = 0; i < MLP.input_size; i++)
         for(int h = 0; h < MLP.hidden_size; h++)
-            MLP.w1[i][h] -= learning_rate * image[i] * dz1[h];
+            MLP.w1[i][h] -= MLP.learning_rate * image[i] * dz1[h];
     for (int h = 0; h < MLP.hidden_size; h++)
-        MLP.b1[h] -= learning_rate * dz1[h];
+        MLP.b1[h] -= MLP.learning_rate * dz1[h];
 }
 
 void digit_OCR::MLP_train(const MNIST::data_1D& train, const MNIST::data_1D& test, int epochs){

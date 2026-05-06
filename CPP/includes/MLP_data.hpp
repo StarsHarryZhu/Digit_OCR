@@ -11,14 +11,18 @@ struct MLP_data{
 
     const int input_size;
     const int hidden_size;
+
+    const double learning_rate;
+
     std::vector<std::vector<double>> w1;
     std::vector<double> b1;
     std::vector<std::vector<double>> w2;
     std::vector<double> b2;
 
-    MLP_data(std::string file, int input_size, int hidden_size):
+    MLP_data(std::string file, double learning_rate, int input_size, int hidden_size):
         code(114), 
         file(file), 
+        learning_rate(learning_rate),
         input_size(input_size), 
         hidden_size(hidden_size){}
 };

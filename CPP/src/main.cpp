@@ -16,16 +16,7 @@ int main(){
     
     auto& i = Digit_OCR::digit_OCR::get_instance();
 
-    i.CNN_init();
-    auto p = i.CNN_forward(train_2d.image[0]);
-
-    std::cout << p.size() << std::endl;
-
-    double sum = 0;
-    for(int i = 0; i < p.size(); i++)
-        sum += p[i];
-    
-    std::cout << sum;
+    std::cout << i.CNN_OCR(img3);
     
     // std::cout << "Predict answer: " << i.MLP_OCR(img3) << std::endl;
     return EXIT_SUCCESS;
